@@ -1,3 +1,4 @@
+Attribute VB_Name = "Modul1"
 Option Compare Database
 
 Public pub_fdc_id As String
@@ -12,10 +13,6 @@ Public fdc_id_array() As String
 
 
 Option Explicit
-
-
-
-
 
 
 Public Function Get_fdc_id() As String
@@ -50,23 +47,20 @@ Public Function Check_fdc_added_food_basket(fdc_id As Variant, rs As Variant, By
     
     'Check to see if the recordset actually contains rows
     If Not (rs.EOF And rs.BOF) Then
-    'MsgBox "hallo"
         rs.MoveFirst 'Unnecessary in this case, but still a good habit
         Do Until rs.EOF = True
-        'MsgBox "hallohallo"
             If CStr(rs![fdc_id]) = fdc_id Then
                 Check_fdc_added_food_basket = True
                 rs.Edit
                 rs![amount] = new_amount
                 rs.Update
-                'MsgBox "hallohallohallo"
                 Exit Function
             End If
             'Move to the next record. Don't ever forget to do this.
             rs.MoveNext
         Loop
     Else
-        MsgBox "There are no records in the recordset."
+        'MsgBox "There are no records in the recordset."
     End If
     
     Exit Function
@@ -79,17 +73,10 @@ End Function
 
 Public Function ResetTable(table As String)
     
-    Dim dbs As Variant, rst As Recordset
-    
-    Set dbs = CurrentDb()
-
-   ' Delete
-    dbs.Execute "DELETE * FROM " _
-       & ""&table&";"
-    
-    dbs.Close
+    DoCmd.RunSQL "DELETE * FROM " & table & ";"
 
 End Function
+
 
 
 
