@@ -1,0 +1,51 @@
+Option Compare Database
+
+Public pub_fdc_id As String
+
+Public n_index As Integer
+
+
+
+
+Public GlobalArray(100) As String
+
+
+
+
+Option Explicit
+
+
+Sub Variables()
+
+n_index = 1
+
+
+
+End Sub
+
+
+
+Public Function Get_fdc_id() As String
+
+  Get_fdc_id = pub_fdc_id
+
+End Function
+
+
+Public Function Check_fdc_added(fdc_id As Variant, arr As Variant) As Boolean
+'DESCRIPTION: Function to check if ingridient already added to nutrient list
+'INPUT: Pass the function a fdc_id to search for and an array of fdc_ids of any data type.
+'OUTPUT: True if is in array, false otherwise
+Dim element As Variant
+On Error GoTo Check_fdc_added_Error: 'array is empty
+    For Each element In arr
+        If element = fdc_id Then
+            Check_fdc_added = True
+            Exit Function
+        End If
+    Next element
+Exit Function
+Check_fdc_added_Error:
+On Error GoTo 0
+Check_fdc_added = False
+End Function

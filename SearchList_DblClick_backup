@@ -1,0 +1,68 @@
+Private Sub SearchList_DblClick(Cancel As Integer)
+    
+    Id_box.Value = SearchList.Column(1)
+    Name_box.Value = SearchList.Column(0)
+    
+    
+    
+    ' Set public nutrient key
+    pub_fdc_id = Id_box.Value
+    'NutrientsPreviewList.Requery
+   
+   ' Check if ingridient already in nutrient list
+   ' if it is not, add it.
+   If Check_fdc_added(pub_fdc_id, fdc_id_array) = False Then
+    
+        ' Resize fdc_id_array and add the new id
+        ReDim Preserve fdc_id_array(UBound(fdc_id_array) + 1)
+        fdc_id_array(UBound(fdc_id_array)) = pub_fdc_id
+        'DebugText.Value = fdc_id_array(0)
+        
+   
+        Set mydb = CurrentDb()
+        Set rst = mydb.OpenRecordset("SearchNutrients")
+        Set nutrient_table = mydb.OpenRecordset("Food_Basket_Nutrients")
+    
+        ' Get row amount of nutrient table for new index
+        rowAmount = nutrient_table.RecordCount
+        n_index = rowAmount
+    
+        varRecords = rst.GetRows(500)
+    
+        intNumReturned = UBound(varRecords, 2)
+        intNumColumn = UBound(varRecords, 1)
+            
+        ' Copy from nutrient search query to nutrient table
+        For intRow = 0 To intNumReturned
+                
+            nutrient_table.AddNew
+            
+            n_index = n_index + 1
+            
+            nutrient_table![id] = n_index
+            nutrient_table![fdc_id] = varRecords(0, intRow)
+            nutrient_table![amount] = varRecords(1, intRow)
+            nutrient_table![Name] = varRecords(2, intRow)
+            nutrient_table![unit_name] = varRecords(3, intRow)
+            nutrient_table.Update
+            
+            'DebugText.Value = DoubleArray(1, intRow)
+            
+        Next intRow
+        
+        
+        nutrient_table.Close
+        rst.Close
+        mydb.Close
+        
+        Set rst = Nothing
+        Set mydb = Nothing
+        Set nutrient_table = Nothing
+   End If
+    
+    
+   
+   NutrientsPreviewList.Requery
+    
+    
+End Sub

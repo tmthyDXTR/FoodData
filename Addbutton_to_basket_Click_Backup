@@ -1,0 +1,48 @@
+Private Sub Addbutton_to_basket_Click()
+    
+    item_name = Name_box.Value
+    item_id = Id_box.Value
+    item_amount = Amount_box.Value
+    
+    'Dim UniqueFlag As Boolean
+    'UniqueFlag = False
+    
+    pub_fdc_id = item_id
+    
+    ' open the table
+    Set mydb = CurrentDb()
+    Set rst = mydb.OpenRecordset("Food_Basket")
+    
+    If rst.RecordCount = 0 Then
+        rst.AddNew
+        rst![fdc_id] = item_id
+        rst![Name] = item_name
+        rst![amount] = item_amount
+        rst.Update
+    Else
+        varRecords = rst.GetRows(500)
+        If Check_fdc_added(pub_fdc_id, varRecords) = False Then
+    
+            rst.AddNew
+            rst![fdc_id] = item_id
+            rst![Name] = item_name
+            rst![amount] = item_amount
+            rst.Update
+    
+        Else
+            DebugText.Value = "Double!"
+        End If
+    End If
+       
+    
+     
+    rst.Close
+    mydb.Close
+    Set rst = Nothing
+    Set mydb = Nothing
+    
+    
+    FoodBasket.Requery
+    
+    
+End Sub
