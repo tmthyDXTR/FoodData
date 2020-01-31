@@ -1,14 +1,12 @@
-VERSION 1.0 CLASS
-BEGIN
-  MultiUse = -1  'True
-END
-Attribute VB_Name = "Form_SearchForm"
-Attribute VB_GlobalNameSpace = False
-Attribute VB_Creatable = True
-Attribute VB_PredeclaredId = True
-Attribute VB_Exposed = False
+Private Sub Form_Open(Cancel As Integer)
 
-Private Sub SearchBox_Enter()
+' Reset Nutrient preview list memory array
+ReDim Preserve fdc_id_array(0)
+fdc_id_array(0) = "12345"
+
+End Sub
+
+Private Sub SearchBox_Change()
     
     SearchList.Requery
     
@@ -18,8 +16,8 @@ End Sub
 Private Sub ResetButton_Click()
     
     ' Clear all Tables
-    Call ResetTable("Food_Basket")
-    Call ResetTable("Food_Basket_Nutrients")
+    Call Reset_Table("Food_Basket")
+    Call Reset_Table("Food_Basket_Nutrients")
           
     ' Reset Nutrient preview list memory array
     ReDim Preserve fdc_id_array(0)
@@ -35,6 +33,7 @@ Private Sub ResetButton_Click()
     MsgBox "Reset Tables"
     
 End Sub
+
 
 Private Sub SearchList_DblClick(Cancel As Integer)
     
@@ -102,7 +101,6 @@ Private Sub SearchList_DblClick(Cancel As Integer)
 End Sub
 
    
-
 Private Sub FoodBasket_DblClick(Cancel As Integer)
 
     ' Select fdc_id
@@ -113,7 +111,7 @@ Private Sub FoodBasket_DblClick(Cancel As Integer)
     NutrientsPreviewList.Requery
     
     
-    ' R¸ckw‰rts Selektion
+    ' RÅckwÑrts Selektion
     Id_box.Value = FoodBasket.Column(0)
     Name_box.Value = FoodBasket.Column(1)
     Amount_box.Value = FoodBasket.Column(2)
@@ -123,7 +121,8 @@ Private Sub FoodBasket_DblClick(Cancel As Integer)
 
 End Sub
 
-Private Sub Addbutton_to_basket_Click()
+
+Private Sub Add_Button_Food_Basket_Click()
     
     item_name = Name_box.Value
     item_id = Id_box.Value
@@ -195,9 +194,21 @@ Private Sub Addbutton_to_basket_Click()
     Set rst = Nothing
     Set mydb = Nothing
     
- 
+    
     NutrientsPreviewList.Requery
     FoodBasket.Requery
+    TotalNutrientsList.Requery
     
+End Sub
+
+
+Private Sub Delete_Button_Food_Basket_Click()
+
+    Call Remove_Ingredient(pub_fdc_id, "Food_Basket")
     
+    FoodBasket.Requery
+    TotalNutrientsList.Requery
+    
+    MsgBox "Ingredient removed."
+
 End Sub

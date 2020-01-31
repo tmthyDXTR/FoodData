@@ -1,4 +1,3 @@
-Attribute VB_Name = "Modul1"
 Option Compare Database
 
 Public pub_fdc_id As String
@@ -71,9 +70,16 @@ Public Function Check_fdc_added_food_basket(fdc_id As Variant, rs As Variant, By
 End Function
 
 
-Public Function ResetTable(table As String)
+Public Function Reset_Table(table As String)
     
     DoCmd.RunSQL "DELETE * FROM " & table & ";"
+
+End Function
+
+
+Public Function Remove_Ingredient(fdc_id As Variant, table As String)
+
+    DoCmd.RunSQL "DELETE * FROM " & table & " WHERE [" & table & "].[fdc_id] = " & Get_fdc_id() & ";"
 
 End Function
 
