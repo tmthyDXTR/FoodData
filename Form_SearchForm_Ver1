@@ -1,8 +1,6 @@
-
 Private Sub Form_Open(Cancel As Integer)
 
-
-
+' Reset Nutrient preview list memory array
 ReDim Preserve fdc_id_array(0)
 fdc_id_array(0) = 12345
 
@@ -10,12 +8,33 @@ pub_fdc_id = 0
 
 End Sub
 
-Private Sub SearchBox_change()
-
+Private Sub SearchBox_Change()
+    
     SearchList.Requery
+    
 
 End Sub
 
+Private Sub ResetButton_Click()
+    
+    ' Clear all Tables
+    Call Reset_Table("Food_Basket")
+    Call Reset_Table("Food_Basket_Nutrients")
+          
+    ' Reset Nutrient preview list memory array
+    ReDim Preserve fdc_id_array(0)
+    fdc_id_array(0) = "12345"
+    
+    FoodBasket.Requery
+    NutrientsPreviewList.Requery
+    
+    Id_box.Value = Empty
+    Name_box.Value = Empty
+    Amount_box.Value = Empty
+    
+    MsgBox "Reset Tables"
+    
+End Sub
 
 
 Private Sub SearchList_DblClick(Cancel As Integer)
@@ -26,6 +45,9 @@ Private Sub SearchList_DblClick(Cancel As Integer)
     'pub_fdc_id = Id_box.Value
     pub_fdc_id = SearchList.Column(1)
     
+    
+   
+   
    
     'NutrientsPreviewList.Requery
    
@@ -48,21 +70,22 @@ Private Sub SearchList_DblClick(Cancel As Integer)
     
             
         ' Copy from nutrient search query to nutrient table
-        
         If Not (rs.EOF And rs.BOF) Then
-            
-            
             rs.MoveFirst 'Unnecessary in this case, but still a good habit
             Do Until rs.EOF = True
             
-                nutrient_table.AddNew
-                n_index = n_index + 1
-                nutrient_table![id] = n_index
-                nutrient_table![fdc_id] = rs![fdc_id]
-                nutrient_table![amount] = rs![amount]
-                nutrient_table![Name] = rs![Name]
-                nutrient_table![unit_name] = rs![unit_name]
-                nutrient_table.Update
+                If rs![amount] > 0 Then
+                
+                    nutrient_table.AddNew
+                    n_index = n_index + 1
+                    nutrient_table![id] = n_index
+                    nutrient_table![fdc_id] = rs![fdc_id]
+                    nutrient_table![amount] = rs![amount]
+                    nutrient_table![actual_amount] = rs![amount]
+                    nutrient_table![Name] = rs![Name]
+                    nutrient_table![unit_name] = rs![unit_name]
+                    nutrient_table.Update
+                End If
                 rs.MoveNext
                 
             Loop
@@ -78,9 +101,11 @@ Private Sub SearchList_DblClick(Cancel As Integer)
         Set nutrient_table = Nothing
    End If
    NutrientsPreviewList.Requery
-End Sub
-   
 
+
+End Sub
+
+   
 Private Sub FoodBasket_DblClick(Cancel As Integer)
 
     ' Select fdc_id
@@ -91,7 +116,7 @@ Private Sub FoodBasket_DblClick(Cancel As Integer)
     NutrientsPreviewList.Requery
     
     
-    ' Rückwärts Selektion
+    ' Backward Selektion
     Id_box.Value = FoodBasket.Column(0)
     Name_box.Value = FoodBasket.Column(1)
     Amount_box.Value = FoodBasket.Column(2)
@@ -101,7 +126,8 @@ Private Sub FoodBasket_DblClick(Cancel As Integer)
 
 End Sub
 
-Private Sub Addbutton_to_basket_Click()
+
+Private Sub Add_Button_Food_Basket_Click()
     
     item_name = Name_box.Value
     item_id = Id_box.Value
@@ -126,20 +152,68 @@ Private Sub Addbutton_to_basket_Click()
         rst![amount] = item_amount
         rst.Update
         
+        ' Loop through Food Basket Nutrient list and edit actual amounts
+        Set nutrient_table = mydb.OpenRecordset("Food_Basket_Nutrients")
+        If Not (nutrient_table.EOF And nutrient_table.BOF) Then
+            nutrient_table.MoveFirst 'Unnecessary in this case, but still a good habit
+            Do Until nutrient_table.EOF = True
+            
+                If CStr(nutrient_table![fdc_id]) = pub_fdc_id Then
+                
+                    nutrient_table.Edit
+                    nutrient_table![actual_amount] = (nutrient_table![amount] / 100) * Amount_box.Value
+                    nutrient_table.Update
+                End If
+                nutrient_table.MoveNext
+            Loop
+        End If
+        nutrient_table.Close
+        Set nutrient_table = Nothing  'Clean up
         
     Else
+        ' Loop through Food Basket Nutrient list and edit actual amounts
+        Set nutrient_table = mydb.OpenRecordset("Food_Basket_Nutrients")
+        If Not (nutrient_table.EOF And nutrient_table.BOF) Then
+            nutrient_table.MoveFirst 'Unnecessary in this case, but still a good habit
+            Do Until nutrient_table.EOF = True
+            
+                If CStr(nutrient_table![fdc_id]) = pub_fdc_id Then
+                
+                    nutrient_table.Edit
+                    nutrient_table![actual_amount] = (nutrient_table![amount] / 100) * Amount_box.Value
+                    nutrient_table.Update
+                End If
+                nutrient_table.MoveNext
+            Loop
+        End If
+        nutrient_table.Close
+        Set nutrient_table = Nothing  'Clean up
         
+        MsgBox "Nutrient amount updated."
         
     End If
     
     rst.Close 'Close the recordset
     mydb.Close
-    Set rst = Nothing 'Clean up
+    
+    Set rst = Nothing
     Set mydb = Nothing
     
- 
+    
+    NutrientsPreviewList.Requery
+    FoodBasket.Requery
+    TotalNutrientsList.Requery
+    
+End Sub
+
+
+Private Sub Delete_Button_Food_Basket_Click()
+
+    Call Remove_Ingredient(pub_fdc_id, "Food_Basket")
     
     FoodBasket.Requery
+    TotalNutrientsList.Requery
     
-    
+    MsgBox "Ingredient removed."
+
 End Sub
