@@ -2,14 +2,15 @@ Private Sub Form_Open(Cancel As Integer)
 
 ' Reset Nutrient preview list memory array
 ReDim Preserve fdc_id_array(0)
-fdc_id_array(0) = "12345"
+fdc_id_array(0) = 12345
 
 End Sub
 
+
 Private Sub SearchBox_Change()
     
-    SearchList.Requery
-    
+	' Typing in Search Box updates the Search List
+    SearchList.Requery    
 
 End Sub
 
@@ -21,10 +22,11 @@ Private Sub ResetButton_Click()
           
     ' Reset Nutrient preview list memory array
     ReDim Preserve fdc_id_array(0)
-    fdc_id_array(0) = "12345"
+    fdc_id_array(0) = 12345
     
     FoodBasket.Requery
     NutrientsPreviewList.Requery
+    TotalNutrientsList.Requery
     
     Id_box.Value = Empty
     Name_box.Value = Empty
@@ -37,14 +39,12 @@ End Sub
 
 Private Sub SearchList_DblClick(Cancel As Integer)
     
-    Id_box.Value = SearchList.Column(1)
-    Name_box.Value = SearchList.Column(0)
-    
-    
-    
     ' Set public nutrient key
-    pub_fdc_id = Id_box.Value
+    pub_fdc_id = SearchList.Column(1)
     'NutrientsPreviewList.Requery
+    
+    Id_box.Value = pub_fdc_id
+    Name_box.Value = SearchList.Column(0)          
    
    ' Check if ingridient already in nutrient list
    ' if it is not, add it.
@@ -97,7 +97,6 @@ Private Sub SearchList_DblClick(Cancel As Integer)
    End If
    NutrientsPreviewList.Requery
 
-
 End Sub
 
    
@@ -114,10 +113,7 @@ Private Sub FoodBasket_DblClick(Cancel As Integer)
     ' RÅckwÑrts Selektion
     Id_box.Value = FoodBasket.Column(0)
     Name_box.Value = FoodBasket.Column(1)
-    Amount_box.Value = FoodBasket.Column(2)
-    
-    
-
+    Amount_box.Value = FoodBasket.Column(2)     
 
 End Sub
 
@@ -153,7 +149,7 @@ Private Sub Add_Button_Food_Basket_Click()
             nutrient_table.MoveFirst 'Unnecessary in this case, but still a good habit
             Do Until nutrient_table.EOF = True
             
-                If CStr(nutrient_table![fdc_id]) = pub_fdc_id Then
+                If nutrient_table![fdc_id] = pub_fdc_id Then
                 
                     nutrient_table.Edit
                     nutrient_table![actual_amount] = (nutrient_table![amount] / 100) * Amount_box.Value
@@ -172,7 +168,7 @@ Private Sub Add_Button_Food_Basket_Click()
             nutrient_table.MoveFirst 'Unnecessary in this case, but still a good habit
             Do Until nutrient_table.EOF = True
             
-                If CStr(nutrient_table![fdc_id]) = pub_fdc_id Then
+                If nutrient_table![fdc_id] = pub_fdc_id Then
                 
                     nutrient_table.Edit
                     nutrient_table![actual_amount] = (nutrient_table![amount] / 100) * Amount_box.Value

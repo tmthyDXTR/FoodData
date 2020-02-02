@@ -1,22 +1,19 @@
 Option Compare Database
 
-Public pub_fdc_id As String
+Public pub_fdc_id As Long
 
 Public n_index As Integer
 
-
-
-
-Public fdc_id_array() As String
-
+Public fdc_id_array() As Long
 
 
 Option Explicit
 
 
-Public Function Get_fdc_id() As String
 
-  Get_fdc_id = pub_fdc_id
+Public Function Get_fdc_id() As Long
+	' Function for SQL Queries
+	Get_fdc_id = pub_fdc_id
 
 End Function
 
@@ -40,15 +37,14 @@ Check_fdc_added = False
 End Function
 
 
-Public Function Check_fdc_added_food_basket(fdc_id As Variant, rs As Variant, ByVal new_amount As String) As Integer
-
-
+Public Function Check_fdc_added_food_basket(fdc_id As Variant, rs As Variant, ByVal new_amount As Variant) As Boolean
     
     'Check to see if the recordset actually contains rows
     If Not (rs.EOF And rs.BOF) Then
         rs.MoveFirst 'Unnecessary in this case, but still a good habit
         Do Until rs.EOF = True
-            If CStr(rs![fdc_id]) = fdc_id Then
+        
+            If rs![fdc_id] = fdc_id Then
                 Check_fdc_added_food_basket = True
                 rs.Edit
                 rs![amount] = new_amount
@@ -65,8 +61,6 @@ Public Function Check_fdc_added_food_basket(fdc_id As Variant, rs As Variant, By
     Exit Function
     Check_fdc_added_food_basket = False
 
-
-
 End Function
 
 
@@ -82,8 +76,3 @@ Public Function Remove_Ingredient(fdc_id As Variant, table As String)
     DoCmd.RunSQL "DELETE * FROM " & table & " WHERE [" & table & "].[fdc_id] = " & Get_fdc_id() & ";"
 
 End Function
-
-
-
-
-
